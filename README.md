@@ -11,7 +11,8 @@ issues](https://img.shields.io/github/issues/heidisteadman/RPracticePackage)](ht
 pulls](https://img.shields.io/github/issues-pr/heidisteadman/RPracticePackage)](https://github.com/heidisteadman/RPracticePackage/pulls)
 <!-- badges: end -->
 
-The goal of `RPracticePackage` is to …
+The goal of `RPracticePackage` is to help the developers gain practice
+creating Bioconductor packages with experimental data.
 
 ## Installation instructions
 
@@ -115,3 +116,10 @@ For more details, check the `dev` directory.
 
 This package was developed using
 *[biocthis](https://bioconductor.org/packages/3.20/biocthis)*.
+
+## Code of Conduct
+
+Please note that the RPracticePackage project is released with a
+[Contributor Code of
+Conduct](http://bioconductor.org/about/code-of-conduct/). By
+contributing to this project, you agree to abide by its terms.

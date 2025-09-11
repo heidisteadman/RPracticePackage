@@ -7,3 +7,6 @@ dev
 .DS_Store
 .quarto
 dev/
+inst/doc
+vignettes/*.html
+vignettes/*.R
