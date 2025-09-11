@@ -1,13 +1,15 @@
 Package: RPracticePackage
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Bioconductor package development practice
+Version: 0.99.0
+Date: 2025-09-11
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    c(person("Heidi", "Steadman", email = "heidi.climber@gmail.com", role = "aut"), 
+    person("Sophie", "Lo", email = "shufeilo@byu.edu", role = c("aut", "cre")))
+Description: Gaining experience developing packages for bioconductor. Plan on using this as a template to create packages with real experimental data. 
+License: Artistic-2.0
+URL: https://github.com/heidisteadman/RPracticePackage
+BugReports: https://github.com/heidisteadman/RPracticePackage//issues
+biocViews: ExperimentData
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-URL: https://github.com/heidisteadman/RPracticePackage
-BugReports: https://github.com/heidisteadman/RPracticePackage/issues
