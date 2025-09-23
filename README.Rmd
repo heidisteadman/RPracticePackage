@@ -41,28 +41,47 @@ BiocManager::install("heidisteadman/RPracticePackage")
 ```
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+Load the data into the SummarizedExperiment object:
 
 ```{r example, eval = requireNamespace('RPracticePackage')}
 library("RPracticePackage")
-## basic example code
+library(SummarizedExperiment)
+data('se')
+expression_data = assay(se)
+sample_metadata = colData(se)
+feature_data = rowData(se)
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+Example of a summary of the expression data:
 
-```{r cars}
-summary(cars)
+```{r experiment_summary}
+library("RPracticePackage")
+library(SummarizedExperiment)
+data('se')
+expressions = assay(se)
+summary(expressions)
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date.
+Example of the first 10 gene expression levels of the first sample read into a plot:
 
-You can also embed plots, for example:
+```{r plot_example}
+library("RPracticePackage")
+library(tidyverse)
+library(SummarizedExperiment)
 
-```{r pressure, echo = FALSE}
-plot(pressure)
+data('se')
+expressions = assay(se)
+
+exp_tib = as_tibble(expressions, rownames='Ensembl_Gene_ID')[1:10,] %>%
+    ggplot(aes(x=Ensembl_Gene_ID, y=GSM1010328)) +
+    geom_col() +
+    labs(x='Ensembl Gene ID',y='Sample ID GSM1010328') +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+exp_tib
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub!
 
 ## Citation
 
