@@ -37,11 +37,12 @@ BiocManager::install("heidisteadman/RPracticePackage")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+Load the expression data in the SummarizedExperiment object:
 
 ``` r
 library("RPracticePackage")
-## basic example code
+data('se')
+assay(se)
 ```
 
 What is special about using `README.Rmd` instead of just `README.md`?
