@@ -45,6 +45,22 @@ data('se')
 assay(se)
 ```
 
+Load the sample metadata in the SummarizedExperiment object:
+
+``` r
+library("RPracticePackage")
+data('se')
+colData(se)
+```
+
+Load the feature data in the SummarizedExperiment object:
+
+``` r
+library("RPracticePackage")
+data('se')
+rowData(se)
+```
+
 What is special about using `README.Rmd` instead of just `README.md`?
 You can include R chunks like so:
 
