@@ -42,3 +42,5 @@ se = SummarizedExperiment(
     rowData = feature_data,
     colData = metadata
 )
+
+usethis::use_data(se, overwrite = TRUE)

@@ -21,3 +21,6 @@ Suggests:
     sessioninfo,
     testthat
 VignetteBuilder: knitr
+Depends: 
+    R (>= 3.5)
+LazyData: true
