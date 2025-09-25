@@ -8,27 +8,30 @@ library(tidyverse)
 
 num_datasets = 3
 meta <- data.frame(
-    Title = c('GSE41197', 'GSE59772', 'GSE10797'),
+    Title = c(paste0('GSE41197'),
+              paste0('GSE59772'),
+              paste0('GSE10797')
+              ),
     Description = c(
-        'Differentially Expressed Genes Regulating the Progression of Ductal Carcinoma In Situ to Invasive Breast Cancer',
-        'Analysis of compartment-specific gene expression in breast cancer tumors',
-        'Transcriptomes of breast epithelium and stroma in normal reduction mammoplasty and invasive breast cancer patients.',
+        paste0('Differentially Expressed Genes Regulating the Progression ',
+        'of Ductal Carcinoma In Situ to Invasive Breast Cancer'),
+        paste0('Analysis of compartment-specific gene expression in breast cancer tumors'),
+        paste0('Transcriptomes of breast epithelium and stroma in normal reduction ', 
+        'mammoplasty and invasive breast cancer patients.')
         ),
     BiocVersion = rep('3.2',num_datasets),
     SourceType = rep('tsv.gz',num_datasets),
     SourceURL = c(
-        'https://osf.io/pdc8h',
-        'https://osf.io/ps2kb',
+        paste0('https://osf.io/pdc8h'),
+        paste0('https://osf.io/ps2kb'),
+        paste0('https://osf.io/ebycg')
         ),
-    SourceVersion = c(
-        'April 22, 2025',
-        'April 22, 2025'
-        ),
+    SourceVersion = rep('April 22, 2025',num_datasets),
     Species = rep('Homo Sapiens', num_datasets),
     TaxonomyID = rep(9606, num_datasets),
     DataProvider = rep('OSF', num_datasets),
     Maintainer = rep('Bioconductor Package Maintainer <maintainer@bioconductor.org>', num_datasets),
-    RDataClass = rep('SummarizedExperiment', num_datasets),
+    RDataClass = rep('SummarizedExperiment', num_datasets)
 )
 
 write.csv(meta, file='inst/extdata/metadata.csv', row.names = FALSE)
