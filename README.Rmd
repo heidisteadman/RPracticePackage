@@ -57,8 +57,8 @@ Example of a summary of the expression data:
 ```{r experiment_summary}
 library("RPracticePackage")
 library(SummarizedExperiment)
-data('se')
-expressions = assay(se)
+data('GSE41197')
+expressions = assay(GSE41197)
 summary(expressions)
 ```
 
@@ -69,8 +69,8 @@ library("RPracticePackage")
 library(tidyverse)
 library(SummarizedExperiment)
 
-data('se')
-expressions = assay(se)
+data('GSE41197')
+expressions = assay(GSE41197)
 
 exp_tib = as_tibble(expressions, rownames='Ensembl_Gene_ID')[1:10,] %>%
     ggplot(aes(x=Ensembl_Gene_ID, y=GSM1010328)) +

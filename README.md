@@ -124,8 +124,8 @@ Example of a summary of the expression data:
 ``` r
 library("RPracticePackage")
 library(SummarizedExperiment)
-data('se')
-expressions = assay(se)
+data('GSE41197')
+expressions = assay(GSE41197)
 summary(expressions)
 #>    GSM1010328         GSM1010329         GSM1010330        GSM1010331      
 #>  Min.   :-0.58807   Min.   :-0.67193   Min.   :-0.6275   Min.   :-0.67947  
@@ -192,8 +192,8 @@ library(tidyverse)
 #> ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
 library(SummarizedExperiment)
 
-data('se')
-expressions = assay(se)
+data('GSE41197')
+expressions = assay(GSE41197)
 
 exp_tib = as_tibble(expressions, rownames='Ensembl_Gene_ID')[1:10,] %>%
     ggplot(aes(x=Ensembl_Gene_ID, y=GSM1010328)) +

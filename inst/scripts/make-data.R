@@ -88,7 +88,7 @@ GSE41197_feature_data = makeFeatureData(GSE41197_expression_data)
 
 GSE41197 = makeSummarizedExperiment(GSE41197_expression_matrix, GSE41197_feature_data, GSE41197_sample_metadata)
 
-usesthis::use_data(GSE41197, overwrite=TRUE)
+usethis::use_data(GSE41197, overwrite=TRUE)
 
 # constructing SummarizedExperiment for GSE10797
 GSE10797_expression_data = downloadOSFFile('ebycg') %>%
