@@ -5,4 +5,4 @@
 #   \item{colData}{sample metadata}
 #}
 # @source Generated internally for RPracticePackage
-"se"
+"GSE41197"

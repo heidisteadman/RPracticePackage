@@ -37,10 +37,10 @@ expression_matrix = expressions %>%
     as.matrix()
 
 # constructing SummarizedExperiment
-se = SummarizedExperiment(
+GSE41197 = SummarizedExperiment(
     assays = list(counts=expression_matrix),
     rowData = feature_data,
     colData = metadata
 )
 
-usethis::use_data(se, overwrite = TRUE)
+usethis::use_data(GSE41197, overwrite = TRUE)

@@ -79,6 +79,11 @@ makeRScript = function(dataset_name) {
     writeLines(doc, file_name)
 }
 
+# constructing SummarizedExperiment for GSE41197
+GSE41197_expression_data = downloadOSFFile('pdc8h') %>%
+    filterRepeatRows()
+colnames(GSE41197_expression_data)
+#GSE41197_expression_matrix = makeDataMatrix(GSE41197_expression_data, )
 
 # constructing SummarizedExperiment for GSE10797
 GSE10797_expression_data = downloadOSFFile('ebycg') %>%
