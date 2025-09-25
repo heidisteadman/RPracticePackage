@@ -14,34 +14,93 @@ downloadOSFFile = function(identifier, out_file_path) {
     return(read_tsv(tmp_file_path))
 }
 
-expression_data = downloadOSFFile("ps2kb")
 
 #filter out repeat rows
-expression_data = expression_data %>%
-    filter(!str_starts(Chromosome, 'H'))
-
+filterRepeatRows = function(expression_matrix) {
+    expression_matrix = expression_matrix %>%
+        filter(!str_starts(Chromosome, 'H'))
+    
+    return(expression_matrix)
+}
 
 # get metadata
-sample_metadata = downloadOSFFile('dc3qh') %>%
-    column_to_rownames('Sample_ID')
+getMetadata = function(identifier) {
+    sample_metadata = downloadOSFFile(identifier) %>%
+        column_to_rownames('Sample_ID')
+    
+    return(sample_metadata)
+}
 
 # make feature data
-feature_data = select(expression_data, Dataset_ID, Entrez_Gene_ID, 
-                      HGNC_Symbol, Ensembl_Gene_ID, Chromosome, Gene_Biotype) %>%
-    distinct(Ensembl_Gene_ID, .keep_all=TRUE) %>%
-    column_to_rownames('Ensembl_Gene_ID')
+makeFeatureData = function(expression_matrix) {
+    feature_data = select(expression_matrix, Dataset_ID, Entrez_Gene_ID, 
+                          HGNC_Symbol, Ensembl_Gene_ID, Chromosome, Gene_Biotype) %>%
+        distinct(Ensembl_Gene_ID, .keep_all=TRUE) %>%
+        column_to_rownames('Ensembl_Gene_ID')
+    
+    return(feature_data)
+}
+
 
 # creating expression data matrix
-expressions = select(expression_data, Ensembl_Gene_ID, GSM1446286:GSM1446294)
-expression_matrix = expressions %>%
-    column_to_rownames('Ensembl_Gene_ID') %>%
-    as.matrix()
+makeDataMatrix = function(dataset, start_col, end_col) {
+    expressions = select(dataset, Ensembl_Gene_ID, start_col:end_col)
+    expression_matrix = expressions %>%
+        column_to_rownames('Ensembl_Gene_ID') %>%
+        as.matrix()
+    
+    return(expression_matrix)
+}
 
-# constructing SummarizedExperiment
-GSE59772 = SummarizedExperiment(
-    assays = list(counts=expression_matrix),
-    rowData = feature_data,
-    colData = sample_metadata
-)
+#build SummarizedExperiment
+makeSummarizedExperiment = function(expressions, features, meta) {
+    se = SummarizedExperiment(
+        assays = list(counts=expressions),
+        rowData = features,
+        colData = meta
+    )
+    
+    return(se)
+}
+
+# make file for roxygen2
+makeRScript = function(dataset_name) {
+    file_name = paste0('R/',dataset_name,'.R')
+    doc = glue::glue(
+        '##\' @format A SummarizedExperiment object with:
+        ##\' \\describe{{
+        ##\'   \\item{{assays}}{{matrix of counts}}
+        ##\'   \\item{{rowData}}{{feature data}}
+        ##\'   \\item{{colData}}{{sample metadata}}
+        ##\' }}
+        ##\' @source Generated internally for RPracticePackage
+        "{dataset_name}"'
+    )
+    writeLines(doc, file_name)
+}
+
+
+# constructing SummarizedExperiment for GSE10797
+GSE10797_expression_data = downloadOSFFile('ebycg') %>%
+    filterRepeatRows()
+GSE10797_expression_matrix = makeDataMatrix(GSE10797_expression_data, 'GSM272671', "GSM272735")
+GSE10797_sample_metadata = getMetadata('vmhuj')
+GSE10797_feature_data = makeFeatureData(GSE10797_expression_data)
+
+GSE10797 = makeSummarizedExperiment(GSE10797_expression_matrix, GSE10797_feature_data, GSE10797_sample_metadata)
+
+usethis::use_data(GSE10797, overwrite=TRUE)
+makeRScript('GSE10797')
+
+
+# constructing SummarizedExperiment for GSE59772
+expression_data = downloadOSFFile("ps2kb") %>%
+    filterRepeatRows()
+expression_matrix = makeDataMatrix(expression_data, 'GSM1446286', 'GSM1446294')
+sample_metadata = getMetadata('dc3qh')
+feature_data = makeFeatureData(expression_data)
+
+
+GSE59772 = makeSummarizedExperiment(expression_matrix, feature_data, sample_metadata)
 
 usethis::use_data(GSE59772, overwrite=TRUE)
