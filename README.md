@@ -207,6 +207,50 @@ exp_tib
 
 <img src="man/figures/README-plot_example-1.png" width="100%" />
 
+Example of using different data sets together to compare expression
+levels of one gene:
+
+``` r
+library("RPracticePackage")
+library(tidyverse)
+library(SummarizedExperiment)
+
+data('GSE10797')
+data('GSE41197')
+data('GSE59772')
+
+GSE10197 = assay(GSE10797)
+GSE41197 = assay(GSE41197)
+GSE59772 = assay(GSE59772)
+
+GSE10197_gene = GSE10197 %>%
+    as_tibble(rownames='Ensembl_Gene_ID') %>%
+    filter(Ensembl_Gene_ID == "ENSG00000171428")
+GSE41197_gene = GSE41197 %>%
+    as_tibble(rownames='Ensembl_Gene_ID') %>%
+    filter(Ensembl_Gene_ID == "ENSG00000171428") 
+GSE59772_gene = GSE59772 %>%
+    as_tibble(rownames='Ensembl_Gene_ID') %>%
+    filter(Ensembl_Gene_ID == "ENSG00000171428")
+
+combined_samples = full_join(GSE10197_gene, GSE41197_gene)
+#> Joining with `by = join_by(Ensembl_Gene_ID)`
+combined_samples = full_join(combined_samples, GSE59772_gene) %>%
+    pivot_longer(cols=-Ensembl_Gene_ID,names_to='Sample_ID',values_to='Expression_Level') %>%
+    ggplot(aes(x=Sample_ID,y=Expression_Level)) +
+    geom_col() +
+    #theme_bw() +
+    labs(x='Sample ID',y='Expression level of ENSG00000171428') +
+    coord_flip() +
+    scale_fill_brewer(palette = "Set3") +
+    theme_bw() +
+    theme(axis.text.y = element_text(size = 6))
+#> Joining with `by = join_by(Ensembl_Gene_ID)`
+combined_samples
+```
+
+<img src="man/figures/README-plot example 2-1.png" width="100%" />
+
 ## Citation
 
 Below is the citation output from using `citation('RPracticePackage')`
