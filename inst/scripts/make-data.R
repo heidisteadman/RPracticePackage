@@ -1,3 +1,10 @@
+if (!requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    if (!requireNamespace("BiocManager", quietly = TRUE)) {
+        install.packages("BiocManager")
+    }
+    BiocManager::install("SummarizedExperiment")
+}
+
 library(tidyverse)
 library(stringr)
 library(Biobase)
