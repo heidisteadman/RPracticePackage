@@ -299,13 +299,6 @@ Please note that the `RPracticePackage` was only made possible thanks to
 many other R and bioinformatics software authors, which are cited either
 in the vignettes and/or the paper(s) describing this package.
 
-## Code of Conduct
-
-Please note that the `RPracticePackage` project is released with a
-[Contributor Code of
-Conduct](http://bioconductor.org/about/code-of-conduct/). By
-contributing to this project, you agree to abide by its terms.
-
 ## Development tools
 
 - Continuous code testing is possible thanks to [GitHub
