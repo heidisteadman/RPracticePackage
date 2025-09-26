@@ -249,7 +249,7 @@ combined_samples = full_join(combined_samples, GSE59772_gene) %>%
 combined_samples
 ```
 
-<img src="man/figures/README-plot example 2-1.png" width="100%" />
+<img src="man/figures/README-plot_example_2-1.png" width="100%" />
 
 ## Citation
 

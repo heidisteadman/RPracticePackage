@@ -23,4 +23,8 @@ Suggests:
 VignetteBuilder: knitr
 Depends: 
     R (>= 3.5)
+Imports: 
+    SummarizedExperiment,
+    Biobase,
+    methods
 LazyData: true

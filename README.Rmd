@@ -84,7 +84,7 @@ exp_tib
 
 Example of using different data sets together to compare expression levels of one gene:
 
-```{r plot example 2}
+```{r plot_example_2}
 library("RPracticePackage")
 library(tidyverse)
 library(SummarizedExperiment)
