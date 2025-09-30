@@ -121,37 +121,37 @@ GSE41197 = assay(GSE41197)
 GSE59772 = assay(GSE59772)
 ```
 
-Next, we converted each to a tibble and selected one row, representing one gene that we knew each data set had in common. 
+Next, we converted each to a tibble and selected one row, representing one gene that we knew each data set had in common. We rotated the tibbles to have one column (the gene) and many rows (the sample). Then, we added the 'group' column, which was necessary for the function used in the next step.
 
 ```{r plot_example_2_part_2}
 GSE10197_gene = GSE10197 %>%
     as_tibble(rownames='Ensembl_Gene_ID') %>%
-    filter(Ensembl_Gene_ID == "ENSG00000171428")
+    filter(Ensembl_Gene_ID == "ENSG00000171428") %>%
+    pivot_longer(cols=-Ensembl_Gene_ID,names_to='Sample_ID',values_to='Expression_Level')%>%
+    mutate(group = 'GSE10197')
 GSE41197_gene = GSE41197 %>%
     as_tibble(rownames='Ensembl_Gene_ID') %>%
-    filter(Ensembl_Gene_ID == "ENSG00000171428") 
+    filter(Ensembl_Gene_ID == "ENSG00000171428") %>%
+    pivot_longer(cols=-Ensembl_Gene_ID,names_to='Sample_ID',values_to='Expression_Level')%>%
+    mutate(group = 'GSE41197')
 GSE59772_gene = GSE59772 %>%
     as_tibble(rownames='Ensembl_Gene_ID') %>%
-    filter(Ensembl_Gene_ID == "ENSG00000171428")
+    filter(Ensembl_Gene_ID == "ENSG00000171428") %>%
+    pivot_longer(cols=-Ensembl_Gene_ID,names_to='Sample_ID',values_to='Expression_Level')%>%
+    mutate(group = 'GSE59772')
 ```
 
-We then joined the 3 tibbles into one tibble with the full_join() function. Then, we rotated the tibble to make the selected gene be the column and the samples be the rows. We now have one tibble with one column (the gene) and many rows (the samples). <br>
+We then joined the 3 tibbles into one tibble with the bind_rows() function. We now have one tibble with one column (the gene) and many rows (the samples). <br>
 <br>
 Finally, we used ggplot() to visualize the expression levels for the gene across the three data sets.
 
 ```{r plot_example_2_part_3}
-combined_samples = full_join(GSE10197_gene, GSE41197_gene)
-combined_samples = full_join(combined_samples, GSE59772_gene) %>%
-    pivot_longer(cols=-Ensembl_Gene_ID,names_to='Sample_ID',values_to='Expression_Level') %>%
-    ggplot(aes(x=Sample_ID,y=Expression_Level)) +
-    geom_col() +
-    #theme_bw() +
-    labs(x='Sample ID',y='Expression level of ENSG00000171428') +
-    coord_flip() +
-    scale_fill_brewer(palette = "Set3") +
-    theme_bw() +
-    theme(axis.text.y = element_text(size = 6))
-combined_samples
+combined_samples = bind_rows(GSE10197_gene, GSE41197_gene, GSE59772_gene)
+
+ggplot(combined_samples, aes(x = group, y = Expression_Level, fill = group)) +
+    geom_boxplot() +
+    labs(x = "Dataset", y = "Expression Level") +
+    theme_bw()
 ```
 
 ## Citation
