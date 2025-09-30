@@ -65,7 +65,7 @@ The package itself includes a metadata as required by Bioconductor. This file is
 ## Examples
 
 The following is the code required to access the objects within the package, as well as additional packages we used to analyze the data. The SummarizedExperiment package is required for both building the package and accessing the data. 
-```{r load_packages}
+```{r load_packages, message=FALSE, warning=FALSE}
 library(RPracticePackage)
 library(SummarizedExperiment)
 library(tidyverse)
