@@ -2,6 +2,7 @@ library(tidyverse)
 library(stringr)
 library(Biobase)
 library(SummarizedExperiment)
+library(S4Vectors)
 
 # download expression data
 downloadOSFFile = function(identifier, out_file_path) {
@@ -65,7 +66,7 @@ makeSummarizedExperiment = function(expressions, features, meta) {
 
 # make file for roxygen2
 makeRScript = function(dataset_name) {
-    file_name = paste0('R/',dataset_name,'.R')
+    file_name = paste0('R/',dataset_name,'_info.R')
     doc = glue::glue(
         '##\' @format A SummarizedExperiment object with:
         ##\' \\describe{{
