@@ -34,45 +34,71 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 BiocManager::install("RPracticePackage")
 ```
 
-And the development version from [GitHub](https://github.com/heidisteadman/RPracticePackage) with:
+This code installs BiocManager if it is not already installed. Running the if statement is required to install the package as it is dependent on BiocManager to load. 
+
+Download the development version from [GitHub](https://github.com/heidisteadman/RPracticePackage) with:
 
 ```{r 'install_dev', eval = FALSE}
 BiocManager::install("heidisteadman/RPracticePackage")
 ```
-## Example
 
-Load the data into the SummarizedExperiment object:
+## Data Info
+
+The data used in this package was accessed through Open Science Framework (OSF). This database allowed us to use data that was already neat and ready to be analyzed. However, the original data came from Gene Expression Omnibus (GEO). The name of every SummarizedExperiment object is the data set name in GEO. Learn more about the data at the following links:
+
+ - GSE41197: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE41197 
+ - GSE10797: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE10797 
+ - GSE59772: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE59772 
+
+The package itself includes a metadata as required by Bioconductor. This file is a table that lists the name of each object and more information about where it came from and how it was accessed. See inst/extdata/metadata.csv. When the package is available in ExperimentHub, using the query() function will show available objects. 
+
+```{r load_metadata}
+#library(ExperimentHub)
+#eh = ExperimentHub()
+#query(eh, RPracticePackage)
+
+# this code throws errors because the package is not currently available in ExperimentHub
+
+```
+
+
+## Examples
+
+The following is the code required to access the objects within the package, as well as additional packages we used to analyze the data. The SummarizedExperiment package is required for both building the package and accessing the data. 
+```{r load_packages}
+library(RPracticePackage)
+library(SummarizedExperiment)
+library(tidyverse)
+```
+
+The SummarizedExperiment object for each data set includes 3 matrices. The first, which we load as expression_data, is a matrix with the samples as columns and genes as rows. The Ensembl gene ID is used as the row names. The data in the actual matrix is the expression level of the gene for the sample. <br>
+<br>
+The second matrix we load as sample_metadata. This is information about the samples themselves, such as demographics for the patient the sample came from. The samples are rows and the information is in the columns. <br>
+<br>
+The third matrix we load as feature_data. This is the information about the genes that were tested for each sample. This includes information like the chromosome the gene is located on, the Entrez gene ID, and the gene name. The genes are the rows and the information about the samples is in the columns.
 
 ```{r example, eval = requireNamespace('RPracticePackage')}
-library("RPracticePackage")
-library(SummarizedExperiment)
-data('se')
-expression_data = assay(se)
-sample_metadata = colData(se)
-feature_data = rowData(se)
+data('GSE41197')
+expression_data = assay(GSE41197)
+sample_metadata = colData(GSE41197)
+feature_data = rowData(GSE41197)
 ```
 
-Example of a summary of the expression data:
+This is a simple example of using a built-in function to get a general idea of the data. The summary() function includes data points for each sample, like the minimum or maximum expression levels across all the genes. Generally, this isn't particularly relevant, but does give an idea of how many samples are in the matrix.
 
 ```{r experiment_summary}
-library("RPracticePackage")
-library(SummarizedExperiment)
 data('GSE41197')
-expressions = assay(GSE41197)
-summary(expressions)
+gene_expression_values = assay(GSE41197)
+summary(gene_expression_values)
 ```
 
-Example of the first 10 gene expression levels of the first sample read into a plot:
+In the following example, we first access the matrix of gene expression values. To make it easier to analyze, we convert it into a tibble and select the first 10 rows. We then used ggplot() to create a bar plot showing the gene expression levels for one sample across 10 genes.
 
 ```{r plot_example}
-library("RPracticePackage")
-library(tidyverse)
-library(SummarizedExperiment)
-
 data('GSE41197')
-expressions = assay(GSE41197)
+gene_expression_values = assay(GSE41197)
 
-exp_tib = as_tibble(expressions, rownames='Ensembl_Gene_ID')[1:10,] %>%
+exp_tib = as_tibble(gene_expression_values, rownames='Ensembl_Gene_ID')[1:10,] %>%
     ggplot(aes(x=Ensembl_Gene_ID, y=GSM1010328)) +
     geom_col() +
     labs(x='Ensembl Gene ID',y='Sample ID GSM1010328') +
@@ -82,13 +108,10 @@ exp_tib = as_tibble(expressions, rownames='Ensembl_Gene_ID')[1:10,] %>%
 exp_tib
 ```
 
-Example of using different data sets together to compare expression levels of one gene:
+
+Here, we first accessed the matrices for 3 data sets included in the RPracticePackage. 
 
 ```{r plot_example_2}
-library("RPracticePackage")
-library(tidyverse)
-library(SummarizedExperiment)
-
 data('GSE10797')
 data('GSE41197')
 data('GSE59772')
@@ -96,7 +119,11 @@ data('GSE59772')
 GSE10197 = assay(GSE10797)
 GSE41197 = assay(GSE41197)
 GSE59772 = assay(GSE59772)
+```
 
+Next, we converted each to a tibble and selected one row, representing one gene that we knew each data set had in common. 
+
+```{r plot_example_2_part_2}
 GSE10197_gene = GSE10197 %>%
     as_tibble(rownames='Ensembl_Gene_ID') %>%
     filter(Ensembl_Gene_ID == "ENSG00000171428")
@@ -106,7 +133,13 @@ GSE41197_gene = GSE41197 %>%
 GSE59772_gene = GSE59772 %>%
     as_tibble(rownames='Ensembl_Gene_ID') %>%
     filter(Ensembl_Gene_ID == "ENSG00000171428")
+```
 
+We then joined the 3 tibbles into one tibble with the full_join() function. Then, we rotated the tibble to make the selected gene be the column and the samples be the rows. We now have one tibble with one column (the gene) and many rows (the samples). <br>
+<br>
+Finally, we used ggplot() to visualize the expression levels for the gene across the three data sets.
+
+```{r plot_example_2_part_3}
 combined_samples = full_join(GSE10197_gene, GSE41197_gene)
 combined_samples = full_join(combined_samples, GSE59772_gene) %>%
     pivot_longer(cols=-Ensembl_Gene_ID,names_to='Sample_ID',values_to='Expression_Level') %>%
