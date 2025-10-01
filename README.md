@@ -302,6 +302,83 @@ top_variance_map
 
 <img src="man/figures/README-heat_map_3-1.png" width="100%" />
 
+In this final example, we use aspects of the feature data along with the
+expression data. <br> <br>
+
+First, we get the feature data and convert it to a tibble. We then
+filter this data for each data set to only include genes on chromosome
+16. Similar to the last example, we also make a vector with the gene
+names the data sets have in common.
+
+``` r
+data("GSE59772")
+GSE59772_featuredata = rowData(GSE59772) %>%
+    as_tibble(rownames = 'Ensembl_Gene_ID')
+
+GSE59772_chr16 = GSE59772_featuredata %>%
+    filter(Chromosome == '16') %>%
+    pull(Ensembl_Gene_ID)
+
+GSE59772_gene_names = assay(GSE59772) %>%
+    as_tibble(rownames="Ensembl_Gene_ID") %>%
+    pull(Ensembl_Gene_ID)
+
+
+data("GSE10797")
+GSE10797_featuredata = rowData(GSE10797) %>%
+    as_tibble(rownames = 'Ensembl_Gene_ID')
+
+GSE10797_chr16 = GSE10797_featuredata %>%
+    filter(Chromosome == '16') %>%
+    pull(Ensembl_Gene_ID)
+
+GSE10797_gene_names = assay(GSE10797) %>%
+    as_tibble(rownames="Ensembl_Gene_ID") %>%
+    pull(Ensembl_Gene_ID)
+
+
+common_genes = c()
+for (gene in GSE59772_gene_names) {
+    if (gene %in% GSE10797_gene_names) {
+        common_genes = c(common_genes, gene)
+    }
+}
+```
+
+Next, we filter the expression data to include only genes on chromosome
+16, then filter again to only include genes the data sets have in
+common. We pivot and mutate to make the data ready for the boxplot.
+
+``` r
+GSE10797_chr16_common = assay(GSE10797) %>%
+    as_tibble(rownames = 'Ensembl_Gene_ID') %>%
+    filter(Ensembl_Gene_ID %in% GSE10797_chr16) %>%
+    filter(Ensembl_Gene_ID %in% common_genes) %>%
+    pivot_longer(cols=-Ensembl_Gene_ID,names_to='Sample_ID',values_to='Expression_Level')%>%
+    mutate(Dataset = 'GSE10797')
+
+GSE59772_chr16_common = assay(GSE59772) %>%
+    as_tibble(rownames = 'Ensembl_Gene_ID') %>%
+    filter(Ensembl_Gene_ID %in% GSE59772_chr16) %>%
+    filter(Ensembl_Gene_ID %in% common_genes) %>%
+    pivot_longer(cols=-Ensembl_Gene_ID,names_to='Sample_ID',values_to='Expression_Level')%>%
+    mutate(Dataset = 'GSE59772')
+```
+
+Finally, we combine the data sets using bind_rows() and read it into a
+ggplot.
+
+``` r
+combined_data = bind_rows(GSE10797_chr16_common, GSE59772_chr16_common) %>%
+    ggplot(aes(x = Dataset, y = Expression_Level, fill = Dataset)) +
+    geom_boxplot() +
+    theme_bw() +
+    labs(x = 'Dataset', y='Gene Expression Level', title = 'Gene Expression Levels in Chromosome 16') 
+combined_data
+```
+
+<img src="man/figures/README-chr16_boxplot_3-1.png" width="100%" />
+
 ## Citation
 
 Below is the citation output from using `citation('RPracticePackage')`
