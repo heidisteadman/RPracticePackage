@@ -217,6 +217,91 @@ ggplot(combined_samples, aes(x = group, y = Expression_Level, fill = group)) +
 
 <img src="man/figures/README-plot_example_2_part_3-1.png" width="100%" />
 
+In this example, we combine using both the metadata and the expression
+data to create a heat map of gene expression levels.<br> First, we load
+the data sets, turn them into tibbles, and extract both the metadata and
+expression data. We then filter the expression to only include the
+samples that are identified as stroma cells. Finally, we create two
+vectors with all the gene names in each tibble to set them up for
+comparison.
+
+``` r
+data("GSE59772")
+GSE59772_metadata = colData(GSE59772) %>%
+    as_tibble(rownames = 'Sample_ID')
+
+GSE59772_stroma_samples = filter(GSE59772_metadata, tissue == 'Stroma') %>%
+    pull(Sample_ID)
+
+GSE59772_gene_names = assay(GSE59772) %>%
+    as_tibble(rownames="Ensembl_Gene_ID") %>%
+    pull(Ensembl_Gene_ID)
+
+
+data("GSE10797")
+GSE10797_metadata = colData(GSE10797) %>%
+    as_tibble(rownames = 'Sample_ID')
+
+GSE10797_gene_names = assay(GSE10797) %>%
+    as_tibble(rownames="Ensembl_Gene_ID") %>%
+    pull(Ensembl_Gene_ID)
+
+GSE10797_stroma_samples = filter(GSE10797_metadata, tissue_source == 'stromal cells from breast cancer patient')%>%
+    pull(Sample_ID)
+```
+
+Next, we create a vector that has only the names of the genes the data
+sets have in common. We use this vector to filter the expression tibbles
+again to only include rows with genes in the vector.
+
+``` r
+common_genes = c()
+for (gene in GSE59772_gene_names) {
+    if (gene %in% GSE10797_gene_names) {
+        common_genes = c(common_genes, gene)
+    }
+}
+
+GSE59772_stroma_expressions = assay(GSE59772) %>%
+    as_tibble(rownames= 'Ensembl_Gene_ID') %>%
+    select(Ensembl_Gene_ID, all_of(GSE59772_stroma_samples)) %>%
+    filter(Ensembl_Gene_ID %in% common_genes)
+    
+GSE10797_stroma_expressions = assay(GSE10797) %>%
+    as_tibble(rownames = 'Ensembl_Gene_ID') %>%
+    select(Ensembl_Gene_ID, all_of(GSE10797_stroma_samples)) %>% 
+    filter(Ensembl_Gene_ID %in% common_genes)
+```
+
+Finally, we combine the data into one tibble called combined_data. We
+make a new row called variance that calculates the variance across the 5
+samples. We select the top 10 rows, those with greatest variance. We
+then use ggplot to create a heat map of the genes with the top variance,
+displayed below.
+
+``` r
+combined_data = full_join(GSE10797_stroma_expressions, GSE59772_stroma_expressions)
+#> Joining with `by = join_by(Ensembl_Gene_ID)`
+top_variance_genes = combined_data %>%
+    rowwise() %>%
+    mutate(variance = var(c_across(starts_with('GSM')))) %>%
+    ungroup() %>%
+    arrange(desc(variance)) %>%
+    slice_head(n=10)
+
+top_variance_map = top_variance_genes %>%
+    select(-variance) %>%
+    pivot_longer(cols = starts_with('GSM'), names_to = 'Sample_ID', values_to = 'Expression') %>%
+    ggplot(aes(x = Sample_ID, y = Ensembl_Gene_ID, fill = Expression)) +
+    geom_tile()+
+    labs(x = 'Sample', y = 'Gene', fill = 'Expression', title = 'Top 10 Genes in Stroma Samples with Highest Variance') + 
+    theme_bw() + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(hjust = 0.5, face = "bold"))
+top_variance_map
+```
+
+<img src="man/figures/README-heat_map_3-1.png" width="100%" />
+
 ## Citation
 
 Below is the citation output from using `citation('RPracticePackage')`
