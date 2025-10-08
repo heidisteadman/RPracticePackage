@@ -10,3 +10,6 @@ dev/
 inst/doc
 vignettes/*.html
 vignettes/*.R
+.RDataTmp
+.RDataTmp1
+.RDataTmp2
