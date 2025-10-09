@@ -26,5 +26,6 @@ Depends:
 Imports: 
     SummarizedExperiment,
     Biobase,
-    methods
+    methods,
+    roxygen2
 LazyData: true

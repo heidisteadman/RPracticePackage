@@ -2,7 +2,7 @@ library(tidyverse)
 library(stringr)
 library(Biobase)
 library(SummarizedExperiment)
-library(S4Vectors)
+library(roxygen2)
 
 # download expression data
 downloadOSFFile = function(identifier, out_file_path) {
