@@ -2,9 +2,9 @@ library(tidyverse)
 library(stringr)
 library(Biobase)
 library(SummarizedExperiment)
-library(roxygen2)
 
-# download expression data
+
+#download file from OSF
 downloadOSFFile = function(identifier, out_file_path) {
     tmp_file_path = str_c(tempdir(), "/", identifier, ".tsv.gz")
     
@@ -64,21 +64,6 @@ makeSummarizedExperiment = function(expressions, features, meta) {
     return(se)
 }
 
-# make file for roxygen2
-makeRScript = function(dataset_name) {
-    file_name = paste0('R/',dataset_name,'_info.R')
-    doc = glue::glue(
-        '##\' @format A SummarizedExperiment object with:
-        ##\' \\describe{{
-        ##\'   \\item{{assays}}{{matrix of counts}}
-        ##\'   \\item{{rowData}}{{feature data}}
-        ##\'   \\item{{colData}}{{sample metadata}}
-        ##\' }}
-        ##\' @source Generated internally for RPracticePackage
-        "{dataset_name}"'
-    )
-    writeLines(doc, file_name)
-}
 
 # constructing SummarizedExperiment for GSE41197
 GSE41197_expression_data = downloadOSFFile('pdc8h') %>%
@@ -101,7 +86,6 @@ GSE10797_feature_data = makeFeatureData(GSE10797_expression_data)
 GSE10797 = makeSummarizedExperiment(GSE10797_expression_matrix, GSE10797_feature_data, GSE10797_sample_metadata)
 
 usethis::use_data(GSE10797, overwrite=TRUE)
-makeRScript('GSE10797')
 
 
 # constructing SummarizedExperiment for GSE59772
