@@ -1,8 +1,5 @@
-library(tidyverse)
-library(stringr)
-library(Biobase)
 library(SummarizedExperiment)
-
+library(tidyverse)
 
 #download file from OSF
 downloadOSFFile = function(identifier, out_file_path) {
@@ -63,39 +60,3 @@ makeSummarizedExperiment = function(expressions, features, meta) {
     
     return(se)
 }
-
-
-# constructing SummarizedExperiment for GSE41197
-GSE41197_expression_data = downloadOSFFile('pdc8h') %>%
-    filterRepeatRows()
-GSE41197_expression_matrix = makeDataMatrix(GSE41197_expression_data, 'GSM1010328', 'GSM1010345')
-GSE41197_sample_metadata = getMetadata('u7x9k')
-GSE41197_feature_data = makeFeatureData(GSE41197_expression_data)
-
-GSE41197 = makeSummarizedExperiment(GSE41197_expression_matrix, GSE41197_feature_data, GSE41197_sample_metadata)
-
-usethis::use_data(GSE41197, overwrite=TRUE)
-
-# constructing SummarizedExperiment for GSE10797
-GSE10797_expression_data = downloadOSFFile('ebycg') %>%
-    filterRepeatRows()
-GSE10797_expression_matrix = makeDataMatrix(GSE10797_expression_data, 'GSM272671', "GSM272735")
-GSE10797_sample_metadata = getMetadata('vmhuj')
-GSE10797_feature_data = makeFeatureData(GSE10797_expression_data)
-
-GSE10797 = makeSummarizedExperiment(GSE10797_expression_matrix, GSE10797_feature_data, GSE10797_sample_metadata)
-
-usethis::use_data(GSE10797, overwrite=TRUE)
-
-
-# constructing SummarizedExperiment for GSE59772
-expression_data = downloadOSFFile("ps2kb") %>%
-    filterRepeatRows()
-expression_matrix = makeDataMatrix(expression_data, 'GSM1446286', 'GSM1446294')
-sample_metadata = getMetadata('dc3qh')
-feature_data = makeFeatureData(expression_data)
-
-
-GSE59772 = makeSummarizedExperiment(expression_matrix, feature_data, sample_metadata)
-
-usethis::use_data(GSE59772, overwrite=TRUE)

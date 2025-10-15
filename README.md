@@ -44,8 +44,8 @@ BiocManager::install("heidisteadman/RPracticePackage")
 The data used in this package was accessed through Open Science
 Framework (OSF). This database allowed us to use data that was already
 neat and ready to be analyzed. However, the original data came from Gene
-Expression Omnibus (GEO). The name of every SummarizedExperiment object
-is the data set name in GEO. Learn more about the data at the following
+Expression Omnibus (GEO). The name of every item in identifier_list is
+the data set name in GEO. Learn more about the data at the following
 links:
 
 - GSE41197:
@@ -55,9 +55,9 @@ links:
 - GSE59772:
   <https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE59772>
 
-The package itself includes a metadata as required by Bioconductor. This
-file is a table that lists the name of each object and more information
-about where it came from and how it was accessed. See
+The package itself includes a metadata file as required by Bioconductor.
+This file is a table that lists the name of each object and more
+information about where it came from and how it was accessed. See
 inst/extdata/metadata.csv. When the package is available in
 ExperimentHub, using the query() function will show available objects.
 
@@ -82,6 +82,19 @@ library(SummarizedExperiment)
 library(tidyverse)
 ```
 
+Downloading this package does not download the data sets onto the user’s
+machine. This package contains 2 code objects the user needs to create
+and access the SummarizedExperiment object for each data set. First is a
+named list object called identifier_list. The second is a function
+called makeObject. identifier_list contains the unique URL identifiers
+for the expression data file and the metadata file. Calling each data
+set in the named list returns a vector with these values. These values
+are passed to makeObject, which returns the SummarizedExperiment. <br>
+<br> To load the SummarizedExperiment object for a data set included in
+RPracticePackage, the user chooses the name of the data set from the
+identifier_list named list object and passes it to the function
+makeObject. This function downloads the data and creates the
+SummarizedExperiment object that is accessible to the user. <br> <br>
 The SummarizedExperiment object for each data set includes 3 matrices.
 The first, which we load as expression_data, is a matrix with the
 samples as columns and genes as rows. The Ensembl gene ID is used as the
@@ -97,10 +110,25 @@ name. The genes are the rows and the information about the samples is in
 the columns.
 
 ``` r
-data('GSE41197')
-expression_data = assay(GSE41197)
-sample_metadata = colData(GSE41197)
-feature_data = rowData(GSE41197)
+GSE41197_SE = makeObject(identifier_list$GSE41197)
+#> Rows: 9593 Columns: 22
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr  (5): Dataset_ID, HGNC_Symbol, Ensembl_Gene_ID, Chromosome, Gene_Biotype
+#> dbl (17): Entrez_Gene_ID, GSM1010328, GSM1010329, GSM1010330, GSM1010331, GS...
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+#> Rows: 16 Columns: 5
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr (5): Dataset_ID, Sample_ID, Platform_ID, Patient_ID, disease_state
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+expression_data = assay(GSE41197_SE)
+sample_metadata = colData(GSE41197_SE)
+feature_data = rowData(GSE41197_SE)
 ```
 
 This is a simple example of using a built-in function to get a general
@@ -110,8 +138,7 @@ genes. Generally, this isn’t particularly relevant, but does give an
 idea of how many samples are in the matrix.
 
 ``` r
-data('GSE41197')
-gene_expression_values = assay(GSE41197)
+gene_expression_values = assay(GSE41197_SE)
 summary(gene_expression_values)
 #>    GSM1010328         GSM1010329         GSM1010330        GSM1010331      
 #>  Min.   :-0.58807   Min.   :-0.67193   Min.   :-0.6275   Min.   :-0.67947  
@@ -123,8 +150,8 @@ summary(gene_expression_values)
 #>    GSM1010332         GSM1010333         GSM1010335         GSM1010336      
 #>  Min.   :-0.65721   Min.   :-0.68931   Min.   :-0.80612   Min.   :-0.76911  
 #>  1st Qu.:-0.02692   1st Qu.:-0.02032   1st Qu.:-0.01329   1st Qu.:-0.01469  
-#>  Median : 0.19357   Median : 0.19358   Median : 0.18998   Median : 0.19854  
-#>  Mean   : 0.38505   Mean   : 0.35555   Mean   : 0.34024   Mean   : 0.34292  
+#>  Median : 0.19357   Median : 0.19358   Median : 0.18998   Median : 0.19855  
+#>  Mean   : 0.38505   Mean   : 0.35555   Mean   : 0.34023   Mean   : 0.34292  
 #>  3rd Qu.: 0.57769   3rd Qu.: 0.53875   3rd Qu.: 0.50096   3rd Qu.: 0.54229  
 #>  Max.   : 5.53771   Max.   : 5.48663   Max.   : 5.15454   Max.   : 5.49399  
 #>    GSM1010337         GSM1010338         GSM1010339        GSM1010340      
@@ -149,7 +176,22 @@ select the first 10 rows. We then used ggplot() to create a bar plot
 showing the gene expression levels for one sample across 10 genes.
 
 ``` r
-data('GSE41197')
+GSE41197 = makeObject(identifier_list$GSE41197)
+#> Rows: 9593 Columns: 22
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr  (5): Dataset_ID, HGNC_Symbol, Ensembl_Gene_ID, Chromosome, Gene_Biotype
+#> dbl (17): Entrez_Gene_ID, GSM1010328, GSM1010329, GSM1010330, GSM1010331, GS...
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+#> Rows: 16 Columns: 5
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr (5): Dataset_ID, Sample_ID, Platform_ID, Patient_ID, disease_state
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 gene_expression_values = assay(GSE41197)
 
 exp_tib = as_tibble(gene_expression_values, rownames='Ensembl_Gene_ID')[1:10,] %>%
@@ -168,13 +210,58 @@ Here, we first accessed the matrices for 3 data sets included in the
 RPracticePackage.
 
 ``` r
-data('GSE10797')
-data('GSE41197')
-data('GSE59772')
+GSE10797_SE = makeObject(identifier_list$GSE10797)
+#> Rows: 13744 Columns: 31
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr  (5): Dataset_ID, HGNC_Symbol, Ensembl_Gene_ID, Chromosome, Gene_Biotype
+#> dbl (26): Entrez_Gene_ID, GSM272671, GSM272673, GSM272675, GSM272677, GSM272...
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+#> Rows: 25 Columns: 5
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr (5): Dataset_ID, Sample_ID, Platform_ID, replicate, tissue_source
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+GSE41197_SE = makeObject(identifier_list$GSE41197)
+#> Rows: 9593 Columns: 22
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr  (5): Dataset_ID, HGNC_Symbol, Ensembl_Gene_ID, Chromosome, Gene_Biotype
+#> dbl (17): Entrez_Gene_ID, GSM1010328, GSM1010329, GSM1010330, GSM1010331, GS...
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+#> Rows: 16 Columns: 5
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr (5): Dataset_ID, Sample_ID, Platform_ID, Patient_ID, disease_state
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+GSE59772_SE = makeObject(identifier_list$GSE59772)
+#> Rows: 21659 Columns: 15
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr  (5): Dataset_ID, HGNC_Symbol, Ensembl_Gene_ID, Chromosome, Gene_Biotype
+#> dbl (10): Entrez_Gene_ID, GSM1446286, GSM1446287, GSM1446288, GSM1446289, GS...
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+#> Rows: 9 Columns: 5
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr (5): Dataset_ID, Sample_ID, Platform_ID, replicate, tissue
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-GSE10197 = assay(GSE10797)
-GSE41197 = assay(GSE41197)
-GSE59772 = assay(GSE59772)
+GSE10197 = assay(GSE10797_SE)
+GSE41197 = assay(GSE41197_SE)
+GSE59772 = assay(GSE59772_SE)
 ```
 
 Next, we converted each to a tibble and selected one row, representing
@@ -226,7 +313,22 @@ vectors with all the gene names in each tibble to set them up for
 comparison.
 
 ``` r
-data("GSE59772")
+GSE59772 = makeObject(identifier_list$GSE59772)
+#> Rows: 21659 Columns: 15
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr  (5): Dataset_ID, HGNC_Symbol, Ensembl_Gene_ID, Chromosome, Gene_Biotype
+#> dbl (10): Entrez_Gene_ID, GSM1446286, GSM1446287, GSM1446288, GSM1446289, GS...
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+#> Rows: 9 Columns: 5
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr (5): Dataset_ID, Sample_ID, Platform_ID, replicate, tissue
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 GSE59772_metadata = colData(GSE59772) %>%
     as_tibble(rownames = 'Sample_ID')
 
@@ -238,7 +340,22 @@ GSE59772_gene_names = assay(GSE59772) %>%
     pull(Ensembl_Gene_ID)
 
 
-data("GSE10797")
+GSE10797 = makeObject(identifier_list$GSE10797)
+#> Rows: 13744 Columns: 31
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr  (5): Dataset_ID, HGNC_Symbol, Ensembl_Gene_ID, Chromosome, Gene_Biotype
+#> dbl (26): Entrez_Gene_ID, GSM272671, GSM272673, GSM272675, GSM272677, GSM272...
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+#> Rows: 25 Columns: 5
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr (5): Dataset_ID, Sample_ID, Platform_ID, replicate, tissue_source
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 GSE10797_metadata = colData(GSE10797) %>%
     as_tibble(rownames = 'Sample_ID')
 
@@ -311,7 +428,22 @@ filter this data for each data set to only include genes on chromosome
 names the data sets have in common.
 
 ``` r
-data("GSE59772")
+GSE59772 = makeObject(identifier_list$GSE59772)
+#> Rows: 21659 Columns: 15
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr  (5): Dataset_ID, HGNC_Symbol, Ensembl_Gene_ID, Chromosome, Gene_Biotype
+#> dbl (10): Entrez_Gene_ID, GSM1446286, GSM1446287, GSM1446288, GSM1446289, GS...
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+#> Rows: 9 Columns: 5
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr (5): Dataset_ID, Sample_ID, Platform_ID, replicate, tissue
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 GSE59772_featuredata = rowData(GSE59772) %>%
     as_tibble(rownames = 'Ensembl_Gene_ID')
 
@@ -324,7 +456,22 @@ GSE59772_gene_names = assay(GSE59772) %>%
     pull(Ensembl_Gene_ID)
 
 
-data("GSE10797")
+GSE10797 = makeObject(identifier_list$GSE10797)
+#> Rows: 13744 Columns: 31
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr  (5): Dataset_ID, HGNC_Symbol, Ensembl_Gene_ID, Chromosome, Gene_Biotype
+#> dbl (26): Entrez_Gene_ID, GSM272671, GSM272673, GSM272675, GSM272677, GSM272...
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+#> Rows: 25 Columns: 5
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: "\t"
+#> chr (5): Dataset_ID, Sample_ID, Platform_ID, replicate, tissue_source
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 GSE10797_featuredata = rowData(GSE10797) %>%
     as_tibble(rownames = 'Ensembl_Gene_ID')
 
@@ -436,7 +583,7 @@ in the vignettes and/or the paper(s) describing this package.
   *[rcmdcheck](https://CRAN.R-project.org/package=rcmdcheck)* customized
   to use [Bioconductor’s docker
   containers](https://www.bioconductor.org/help/docker/) and
-  *[BiocCheck](https://bioconductor.org/packages/3.20/BiocCheck)*.
+  *[BiocCheck](https://bioconductor.org/packages/3.21/BiocCheck)*.
 - Code coverage assessment is possible thanks to
   [codecov](https://codecov.io/gh) and
   *[covr](https://CRAN.R-project.org/package=covr)*.
@@ -453,7 +600,7 @@ in the vignettes and/or the paper(s) describing this package.
 For more details, check the `dev` directory.
 
 This package was developed using
-*[biocthis](https://bioconductor.org/packages/3.20/biocthis)*.
+*[biocthis](https://bioconductor.org/packages/3.21/biocthis)*.
 
 ## Code of Conduct
 

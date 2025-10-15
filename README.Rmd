@@ -44,13 +44,13 @@ BiocManager::install("heidisteadman/RPracticePackage")
 
 ## Data Info
 
-The data used in this package was accessed through Open Science Framework (OSF). This database allowed us to use data that was already neat and ready to be analyzed. However, the original data came from Gene Expression Omnibus (GEO). The name of every SummarizedExperiment object is the data set name in GEO. Learn more about the data at the following links:
+The data used in this package was accessed through Open Science Framework (OSF). This database allowed us to use data that was already neat and ready to be analyzed. However, the original data came from Gene Expression Omnibus (GEO). The name of every item in identifier_list is the data set name in GEO. Learn more about the data at the following links:
 
  - GSE41197: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE41197 
  - GSE10797: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE10797 
  - GSE59772: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE59772 
 
-The package itself includes a metadata as required by Bioconductor. This file is a table that lists the name of each object and more information about where it came from and how it was accessed. See inst/extdata/metadata.csv. When the package is available in ExperimentHub, using the query() function will show available objects. 
+The package itself includes a metadata file as required by Bioconductor. This file is a table that lists the name of each object and more information about where it came from and how it was accessed. See inst/extdata/metadata.csv. When the package is available in ExperimentHub, using the query() function will show available objects. 
 
 ```{r load_metadata}
 #library(ExperimentHub)
@@ -71,6 +71,10 @@ library(SummarizedExperiment)
 library(tidyverse)
 ```
 
+Downloading this package does not download the data sets onto the user's machine. This package contains 2 code objects the user needs to create and access the SummarizedExperiment object for each data set. First is a named list object called identifier_list. The second is a function called makeObject. identifier_list contains the unique URL identifiers for the expression data file and the metadata file. Calling each data set in the named list returns a vector with these values. These values are passed to makeObject, which returns the SummarizedExperiment. <br>
+<br>
+To load the SummarizedExperiment object for a data set included in RPracticePackage, the user chooses the name of the data set from the identifier_list named list object and passes it to the function makeObject. This function downloads the data and creates the SummarizedExperiment object that is accessible to the user.  <br>
+<br>
 The SummarizedExperiment object for each data set includes 3 matrices. The first, which we load as expression_data, is a matrix with the samples as columns and genes as rows. The Ensembl gene ID is used as the row names. The data in the actual matrix is the expression level of the gene for the sample. <br>
 <br>
 The second matrix we load as sample_metadata. This is information about the samples themselves, such as demographics for the patient the sample came from. The samples are rows and the information is in the columns. <br>
@@ -78,24 +82,23 @@ The second matrix we load as sample_metadata. This is information about the samp
 The third matrix we load as feature_data. This is the information about the genes that were tested for each sample. This includes information like the chromosome the gene is located on, the Entrez gene ID, and the gene name. The genes are the rows and the information about the samples is in the columns.
 
 ```{r example, eval = requireNamespace('RPracticePackage')}
-data('GSE41197')
-expression_data = assay(GSE41197)
-sample_metadata = colData(GSE41197)
-feature_data = rowData(GSE41197)
+GSE41197_SE = makeObject(identifier_list$GSE41197)
+expression_data = assay(GSE41197_SE)
+sample_metadata = colData(GSE41197_SE)
+feature_data = rowData(GSE41197_SE)
 ```
 
 This is a simple example of using a built-in function to get a general idea of the data. The summary() function includes data points for each sample, like the minimum or maximum expression levels across all the genes. Generally, this isn't particularly relevant, but does give an idea of how many samples are in the matrix.
 
 ```{r experiment_summary}
-data('GSE41197')
-gene_expression_values = assay(GSE41197)
+gene_expression_values = assay(GSE41197_SE)
 summary(gene_expression_values)
 ```
 
 In the following example, we first access the matrix of gene expression values. To make it easier to analyze, we convert it into a tibble and select the first 10 rows. We then used ggplot() to create a bar plot showing the gene expression levels for one sample across 10 genes.
 
 ```{r plot_example}
-data('GSE41197')
+GSE41197 = makeObject(identifier_list$GSE41197)
 gene_expression_values = assay(GSE41197)
 
 exp_tib = as_tibble(gene_expression_values, rownames='Ensembl_Gene_ID')[1:10,] %>%
@@ -112,13 +115,13 @@ exp_tib
 Here, we first accessed the matrices for 3 data sets included in the RPracticePackage. 
 
 ```{r plot_example_2}
-data('GSE10797')
-data('GSE41197')
-data('GSE59772')
+GSE10797_SE = makeObject(identifier_list$GSE10797)
+GSE41197_SE = makeObject(identifier_list$GSE41197)
+GSE59772_SE = makeObject(identifier_list$GSE59772)
 
-GSE10197 = assay(GSE10797)
-GSE41197 = assay(GSE41197)
-GSE59772 = assay(GSE59772)
+GSE10197 = assay(GSE10797_SE)
+GSE41197 = assay(GSE41197_SE)
+GSE59772 = assay(GSE59772_SE)
 ```
 
 Next, we converted each to a tibble and selected one row, representing one gene that we knew each data set had in common. We rotated the tibbles to have one column (the gene) and many rows (the sample). Then, we added the 'group' column, which was necessary for the function used in the next step.
@@ -159,7 +162,7 @@ First, we load the data sets, turn them into tibbles, and extract both the metad
 expression to only include the samples that are identified as stroma cells. Finally, we create two vectors with all the gene names in each tibble to set them up for comparison. 
 
 ``` {r heat_map}
-data("GSE59772")
+GSE59772 = makeObject(identifier_list$GSE59772)
 GSE59772_metadata = colData(GSE59772) %>%
     as_tibble(rownames = 'Sample_ID')
 
@@ -171,7 +174,7 @@ GSE59772_gene_names = assay(GSE59772) %>%
     pull(Ensembl_Gene_ID)
 
 
-data("GSE10797")
+GSE10797 = makeObject(identifier_list$GSE10797)
 GSE10797_metadata = colData(GSE10797) %>%
     as_tibble(rownames = 'Sample_ID')
 
@@ -233,7 +236,7 @@ In this final example, we use aspects of the feature data along with the express
 
 First, we get the feature data and convert it to a tibble. We then filter this data for each data set to only include genes on chromosome 16. Similar to the last example, we also make a vector with the gene names the data sets have in common. 
 ``` {r chr16_boxplot}
-data("GSE59772")
+GSE59772 = makeObject(identifier_list$GSE59772)
 GSE59772_featuredata = rowData(GSE59772) %>%
     as_tibble(rownames = 'Ensembl_Gene_ID')
 
@@ -246,7 +249,7 @@ GSE59772_gene_names = assay(GSE59772) %>%
     pull(Ensembl_Gene_ID)
 
 
-data("GSE10797")
+GSE10797 = makeObject(identifier_list$GSE10797)
 GSE10797_featuredata = rowData(GSE10797) %>%
     as_tibble(rownames = 'Ensembl_Gene_ID')
 
