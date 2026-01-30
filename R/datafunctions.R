@@ -42,7 +42,7 @@ makeFeatureData = function(expression_matrix) {
 
 # creating expression data matrix
 makeDataMatrix = function(dataset, start_col, end_col) {
-    expressions = select(dataset, Ensembl_Gene_ID, start_col:end_col)
+    expressions = select(dataset, Ensembl_Gene_ID, all_of(start_col:end_col))
     expression_matrix = expressions %>%
         column_to_rownames('Ensembl_Gene_ID') %>%
         as.matrix()

@@ -39,7 +39,7 @@ makeObject = function(identifiers) {
 #' @source generated internally for RPracticePackage
 "identifier_list"
 identifier_list <- list(
-    GSE41197 = c('pdc8h','u7x9k'),
+    GSE41197 = c('10.5281/zenodo.17428997', 'GSE41197.tsv.gz', 'GSE41197_metadata.tsv'),
     GSE10797 = c('ebycg','vmhuj'),
     GSE59772 = c('ps2kb','dc3qh')
 )
